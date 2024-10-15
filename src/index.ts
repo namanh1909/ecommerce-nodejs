@@ -6,7 +6,7 @@ import logger from './modules/logger/logger';
 let server: any;
 mongoose.connect(config.mongoose.url).then(() => {
   logger.info('Connected to MongoDB');
-  server = app.listen(config.port, () => {
+  server = app.listen(config.port || 3000, () => {
     logger.info(`Listening to port ${config.port}`);
   });
 });
