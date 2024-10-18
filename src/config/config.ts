@@ -61,6 +61,7 @@ const config = {
         user: envVars.SMTP_USERNAME,
         pass: envVars.SMTP_PASSWORD,
       },
+      secure: false,
     },
     from: envVars.EMAIL_FROM,
   },

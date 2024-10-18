@@ -52,6 +52,19 @@ export const sendResetPasswordEmail = async (to: string, token: string): Promise
   await sendEmail(to, subject, text, html);
 };
 
+export const sendVerifyCodeEmail = async (to: string, randomCode: string): Promise<void> => {
+  const subject = 'Reset password';
+  // replace this url with the link to the reset password page of your front-end app
+  const text = `Hi,
+  Your login code is: ${randomCode}`;
+  const html = `<div style="margin:30px; padding:30px; border:1px solid black; border-radius: 20px 10px;"><h4><strong>Dear user,</strong></h4>
+  <p>Your login code is: ${randomCode}</p>
+  <p>Please never sharing this code to any more</p>
+  <p>Thanks,</p>
+  <p><strong>Team</strong></p></div>`;
+  await sendEmail(to, subject, text, html);
+};
+
 /**
  * Send verification email
  * @param {string} to
