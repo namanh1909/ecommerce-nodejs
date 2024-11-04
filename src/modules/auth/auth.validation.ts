@@ -19,6 +19,12 @@ export const login = {
   }),
 };
 
+export const loginMobile = {
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+  }),
+}
+
 export const logout = {
   body: Joi.object().keys({
     refreshToken: Joi.string().required(),
@@ -51,3 +57,10 @@ export const verifyEmail = {
     token: Joi.string().required(),
   }),
 };
+
+export const confirmOTP = {
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    code: Joi.string().required(),
+  }),
+}

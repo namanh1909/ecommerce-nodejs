@@ -6,6 +6,9 @@ import tokenTypes from '../token/token.types';
 import { getUserByEmail, getUserById, updateUserById } from '../user/user.service';
 import { IUserDoc, IUserWithTokens } from '../user/user.interfaces';
 import { generateAuthTokens, verifyToken } from '../token/token.service';
+import redisClient from '../redis/redisClient'; // Assuming you have a redis client setup
+import { sendEmail } from '../email/email.service'; // Assuming you have an email service setup
+import { logger } from '../logger';
 
 /**
  * Login with username and password
@@ -91,5 +94,44 @@ export const verifyEmail = async (verifyEmailToken: any): Promise<IUserDoc | nul
     return updatedUser;
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed');
+  }
+};
+
+/**
+ * Send email code
+ * @param {string} email
+ * @returns {Promise<void>}
+ */
+export const sendEmailCode = async (email: string): Promise<void> => {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  await redisClient.set(email, code, 'EX', 60); // Store code in Redis with 60 seconds expiration
+  await sendEmail(email, 'Your verification code', `Your verification code is ${code}`, '');
+};
+
+/**
+ * Confirm email code
+ * @param {string} email
+ * @param {string} code
+ * @returns {Promise<void>}
+ */
+export const confirmEmailCode = async (email: string, code: string): Promise<void> => {
+  try {
+    console.log(`Confirming email code for email: ${email}, code: ${code}`);
+    const storedCode = await redisClient.get(email);
+    console.log(`storedCode`, storedCode);
+    logger.error(`email: ${email}`, storedCode)
+    if (!storedCode) throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired code');
+
+    if (storedCode !== code) {
+      console.error(`Invalid or expired code for email: ${email}`);
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired code');
+    }
+    else {
+      await redisClient.del(email); // Delete the code from Redis after confirmation
+    }
+    console.log(`Email code confirmed and deleted for email: ${email}`);
+  } catch (error) {
+    console.error(`Error confirming email code for email: ${email}`, error);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error confirming email code');
   }
 };

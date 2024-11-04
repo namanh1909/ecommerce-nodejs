@@ -12,6 +12,9 @@ router.post('/forgot-password', validate(authValidation.forgotPassword), authCon
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router.post('/send-otp-email', validate(authValidation.loginMobile), authController.sendOTPEmail);
+router.post('/confirm-otp-email', validate(authValidation.confirmOTP), authController.confirmOTPEmail);
+
 
 export default router;
 
@@ -287,3 +290,78 @@ export default router;
  *               code: 401
  *               message: verify email failed
  */
+/**
+* @swagger
+* /auth/send-otp-email:
+*   post:
+*     summary: Send OTP email
+*     description: An email will be sent with an OTP code for login.
+*     tags: [Auth]
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             required:
+*               - email
+*             properties:
+*               email:
+*                 type: string
+*                 format: email
+*                 description: The email address to send the OTP code to
+*             example:
+*               email: user@example.com
+*     responses:
+*       "204":
+*         description: No content
+*       "401":
+*         description: Sending OTP email failed
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/Error'
+*             example:
+*               code: 401
+*               message: Sending OTP email failed
+*/
+/**
+* @swagger
+* /auth/confirm-otp-email:
+*   post:
+*     summary: Confirm OTP email
+*     description: Confirm the OTP code sent to the user's email for login.
+*     tags: [Auth]
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             required:
+*               - email
+*               - code
+*             properties:
+*               email:
+*                 type: string
+*                 format: email
+*                 description: The email address to confirm the OTP code for
+*               code:
+*                 type: string
+*                 description: The OTP code sent to the email
+*             example:
+*               email: user@example.com
+*               code: 123456
+*     responses:
+*       "204":
+*         description: No content
+*       "401":
+*         description: Confirming OTP email failed
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/Error'
+*             example:
+*               code: 401
+*               message: Confirming OTP email failed
+*/

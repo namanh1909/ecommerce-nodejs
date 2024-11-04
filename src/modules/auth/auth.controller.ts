@@ -5,6 +5,7 @@ import { tokenService } from '../token';
 import { userService } from '../user';
 import * as authService from './auth.service';
 import { emailService } from '../email';
+import { logger } from '../logger';
 
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body);
@@ -48,5 +49,18 @@ export const sendVerificationEmail = catchAsync(async (req: Request, res: Respon
 
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query['token']);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
+export const sendOTPEmail = catchAsync(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  await authService.sendEmailCode(email);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
+export const confirmOTPEmail = catchAsync(async (req: Request, res: Response) => {
+  const { email, code } = req.body;
+  logger.info('Connected to email server', req.body)
+  await authService.confirmEmailCode(email, code);
   res.status(httpStatus.NO_CONTENT).send();
 });

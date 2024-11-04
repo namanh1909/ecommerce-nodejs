@@ -21,6 +21,9 @@ const envVarsSchema = Joi.object()
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     CLIENT_URL: Joi.string().required().description('Client url'),
+    REDIS_HOST: Joi.string().default('127.0.0.1'),
+    REDIS_PORT: Joi.number().default(6379),
+    REDIS_PASSWORD: Joi.string(),
   })
   .unknown();
 
@@ -66,6 +69,12 @@ const config = {
     from: envVars.EMAIL_FROM,
   },
   clientUrl: envVars.CLIENT_URL,
+  redisConfig: {
+    host: envVars.REDIS_HOST || '127.0.0.1',
+    port: envVars.REDIS_PORT || 6379,
+    password: envVars.REDIS_PASSWORD || undefined,
+    db: 0, // Optional: specify DB index
+  }
 };
 
 export default config;
