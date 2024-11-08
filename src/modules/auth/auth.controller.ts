@@ -6,61 +6,122 @@ import { userService } from '../user';
 import * as authService from './auth.service';
 import { emailService } from '../email';
 import { logger } from '../logger';
+import { CommonResponseType } from '../../config/response';
 
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.status(httpStatus.CREATED).send({ user, tokens });
+  const response: CommonResponseType<{ user: typeof user; tokens: typeof tokens }> = {
+    code: httpStatus.CREATED,
+    data: { user, tokens },
+    message: 'User registered successfully',
+    success: true,
+  };
+  res.status(httpStatus.CREATED).send(response);
 });
 
 export const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.send({ user, tokens });
+  const response: CommonResponseType<{ user: typeof user; tokens: typeof tokens }> = {
+    code: httpStatus.OK,
+    data: { user, tokens },
+    message: 'Login successful',
+    success: true,
+  };
+  res.send(response);
 });
 
 export const logout = catchAsync(async (req: Request, res: Response) => {
   await authService.logout(req.body.refreshToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'Logout successful',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });
 
 export const refreshTokens = catchAsync(async (req: Request, res: Response) => {
   const userWithTokens = await authService.refreshAuth(req.body.refreshToken);
-  res.send({ ...userWithTokens });
+  const response: CommonResponseType<typeof userWithTokens> = {
+    code: httpStatus.OK,
+    data: userWithTokens,
+    message: 'Tokens refreshed successfully',
+    success: true,
+  };
+  res.send(response);
 });
 
 export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
   await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'Reset password email sent',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });
 
 export const resetPassword = catchAsync(async (req: Request, res: Response) => {
   await authService.resetPassword(req.query['token'], req.body.password);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'Password reset successful',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });
 
 export const sendVerificationEmail = catchAsync(async (req: Request, res: Response) => {
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user);
   await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.name);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'Verification email sent',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });
 
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query['token']);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'Email verified successfully',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });
 
 export const sendOTPEmail = catchAsync(async (req: Request, res: Response) => {
   const { email } = req.body;
   await authService.sendEmailCode(email);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'OTP email sent',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });
 
 export const confirmOTPEmail = catchAsync(async (req: Request, res: Response) => {
   const { email, code } = req.body;
-  logger.info('Connected to email server', req.body)
+  logger.info('Connected to email server', req.body);
   await authService.confirmEmailCode(email, code);
-  res.status(httpStatus.NO_CONTENT).send();
+  const response: CommonResponseType<null> = {
+    code: httpStatus.NO_CONTENT,
+    data: null,
+    message: 'OTP confirmed successfully',
+    success: true,
+  };
+  res.status(httpStatus.NO_CONTENT).send(response);
 });

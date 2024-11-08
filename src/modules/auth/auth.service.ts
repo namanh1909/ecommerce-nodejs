@@ -9,6 +9,7 @@ import { generateAuthTokens, verifyToken } from '../token/token.service';
 import redisClient from '../redis/redisClient'; // Assuming you have a redis client setup
 import { sendEmail } from '../email/email.service'; // Assuming you have an email service setup
 import { logger } from '../logger';
+import { CommonResponseType } from '../../config/response';
 
 /**
  * Login with username and password
@@ -19,7 +20,13 @@ import { logger } from '../logger';
 export const loginUserWithEmailAndPassword = async (email: string, password: string): Promise<IUserDoc> => {
   const user = await getUserByEmail(email);
   if (!user || !(await user.isPasswordMatch(password))) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+    const errorResponse: CommonResponseType<null> = {
+      code: httpStatus.UNAUTHORIZED,
+      data: null,
+      message: 'Incorrect email or password',
+      success: false,
+    };
+    throw new ApiError(errorResponse.code, errorResponse.message);
   }
   return user;
 };
@@ -32,7 +39,13 @@ export const loginUserWithEmailAndPassword = async (email: string, password: str
 export const logout = async (refreshToken: string): Promise<void> => {
   const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: tokenTypes.REFRESH, blacklisted: false });
   if (!refreshTokenDoc) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
+    const errorResponse: CommonResponseType<null> = {
+      code: httpStatus.NOT_FOUND,
+      data: null,
+      message: 'Not found',
+      success: false,
+    };
+    throw new ApiError(errorResponse.code, errorResponse.message);
   }
   await refreshTokenDoc.deleteOne();
 };
@@ -53,7 +66,13 @@ export const refreshAuth = async (refreshToken: string): Promise<IUserWithTokens
     const tokens = await generateAuthTokens(user);
     return { user, tokens };
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
+    const errorResponse: CommonResponseType<null> = {
+      code: httpStatus.UNAUTHORIZED,
+      data: null,
+      message: 'Please authenticate',
+      success: false,
+    };
+    throw new ApiError(errorResponse.code, errorResponse.message);
   }
 };
 
@@ -73,7 +92,13 @@ export const resetPassword = async (resetPasswordToken: any, newPassword: string
     await updateUserById(user.id, { password: newPassword });
     await Token.deleteMany({ user: user.id, type: tokenTypes.RESET_PASSWORD });
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
+    const errorResponse: CommonResponseType<null> = {
+      code: httpStatus.UNAUTHORIZED,
+      data: null,
+      message: 'Password reset failed',
+      success: false,
+    };
+    throw new ApiError(errorResponse.code, errorResponse.message);
   }
 };
 
@@ -93,7 +118,13 @@ export const verifyEmail = async (verifyEmailToken: any): Promise<IUserDoc | nul
     const updatedUser = await updateUserById(user.id, { isEmailVerified: true });
     return updatedUser;
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed');
+    const errorResponse: CommonResponseType<null> = {
+      code: httpStatus.UNAUTHORIZED,
+      data: null,
+      message: 'Email verification failed',
+      success: false,
+    };
+    throw new ApiError(errorResponse.code, errorResponse.message);
   }
 };
 
@@ -120,18 +151,37 @@ export const confirmEmailCode = async (email: string, code: string): Promise<voi
     const storedCode = await redisClient.get(email);
     console.log(`storedCode`, storedCode);
     logger.error(`email: ${email}`, storedCode)
-    if (!storedCode) throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired code');
+    if (!storedCode) {
+      const errorResponse: CommonResponseType<null> = {
+        code: httpStatus.UNAUTHORIZED,
+        data: null,
+        message: 'Invalid or expired code',
+        success: false,
+      };
+      throw new ApiError(errorResponse.code, errorResponse.message);
+    }
 
     if (storedCode !== code) {
       console.error(`Invalid or expired code for email: ${email}`);
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired code');
-    }
-    else {
+      const errorResponse: CommonResponseType<null> = {
+        code: httpStatus.UNAUTHORIZED,
+        data: null,
+        message: 'Invalid or expired code',
+        success: false,
+      };
+      throw new ApiError(errorResponse.code, errorResponse.message);
+    } else {
       await redisClient.del(email); // Delete the code from Redis after confirmation
     }
     console.log(`Email code confirmed and deleted for email: ${email}`);
   } catch (error) {
     console.error(`Error confirming email code for email: ${email}`, error);
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error confirming email code');
+    const errorResponse: CommonResponseType<null> = {
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      data: null,
+      message: 'Error confirming email code',
+      success: false,
+    };
+    throw new ApiError(errorResponse.code, errorResponse.message);
   }
 };
