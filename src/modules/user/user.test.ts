@@ -56,13 +56,15 @@ const insertUsers = async (users: Record<string, any>[]) => {
 describe('User routes', () => {
   describe('POST /v1/users', () => {
     let newUser: NewCreatedUser;
-
     beforeEach(() => {
       newUser = {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
         role: 'user',
+        avatar: faker.image.avatar(),
+        phoneNumber: faker.phone.phoneNumber(),
+        address: faker.address.streetAddress(),
       };
     });
 

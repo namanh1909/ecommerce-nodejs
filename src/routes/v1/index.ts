@@ -3,6 +3,7 @@ import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
 import brandRoute from './brand.route';
+import productRoute from './product.route';
 
 import config from '../../config/config';
 
@@ -27,6 +28,10 @@ const defaultIRoute: IRoute[] = [
     path: '/brands',
     route: brandRoute,
   },
+  {
+    path: '/product',
+    route: productRoute
+  }
 ];
 
 const devIRoute: IRoute[] = [

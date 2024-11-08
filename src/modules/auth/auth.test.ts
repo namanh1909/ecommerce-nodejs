@@ -1,4 +1,5 @@
 /* eslint-disable jest/no-commented-out-tests */
+
 import { faker } from '@faker-js/faker';
 import mongoose from 'mongoose';
 import request from 'supertest';
@@ -48,6 +49,9 @@ describe('Auth routes', () => {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
+        avatar: faker.image.avatar(),
+        phoneNumber: faker.phone.phoneNumber(),
+        address: faker.address.streetAddress(),
       };
     });
 
@@ -382,6 +386,7 @@ describe('Auth routes', () => {
 
       await request(app).post('/v1/auth/verify-email').send().expect(httpStatus.BAD_REQUEST);
     });
+
 
     test('should return 401 if verify email token is blacklisted', async () => {
       await insertUsers([userOne]);

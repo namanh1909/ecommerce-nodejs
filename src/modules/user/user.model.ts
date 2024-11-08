@@ -46,6 +46,23 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    avatar: {
+      type: String,
+      trim: true,
+    },
+    phoneNumber: {
+      type: String,
+      trim: true,
+      validate(value: string) {
+        if (!validator.isMobilePhone(value, 'any')) {
+          throw new Error('Invalid phone number');
+        }
+      },
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,

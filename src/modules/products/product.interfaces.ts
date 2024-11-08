@@ -1,8 +1,10 @@
 export interface Product {
     Id?: string | null;
     productName: string;
-    productImage: string[];
+    productImageDetail: string[];
     descriptionProduct: string;
-    price: number;
+    price: string;
+    brandId: string;
+    productImage: string;
 }
   

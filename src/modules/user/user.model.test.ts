@@ -11,6 +11,9 @@ describe('User model', () => {
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
         role: 'user',
+        avatar: faker.internet.avatar(),
+        phoneNumber: faker.phone.phoneNumber('##########'),
+        address: faker.address.streetAddress(),
       };
     });
 
@@ -51,6 +54,9 @@ describe('User model', () => {
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
         role: 'user',
+        avatar: faker.internet.avatar(),
+        phoneNumber: faker.phone.phoneNumber('##########'),
+        address: faker.address.streetAddress(),
       };
       expect(new User(newUser).toJSON()).not.toHaveProperty('password');
     });
