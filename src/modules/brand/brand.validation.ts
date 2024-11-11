@@ -1,15 +1,20 @@
 import Joi from 'joi';
-import { Brand } from './brand.interfaces';
+// import { Brand } from './brand.interfaces';
 
-const brandSchema: Record<keyof Brand, any> = {
-    brandName: Joi.string().required(),
-    brandImage: Joi.string().required(),
-    description: Joi.string().required(),
-    Id: Joi.string()
-};
+// const brandSchema: Record<keyof Brand, any> = {
+//     brandName: Joi.string().required(),
+//     brandImage: Joi.string().required(),
+//     description: Joi.string().required(),
+//     Id: Joi.string()
+// };
 
 export const createBrand = {
-    body: Joi.object().keys(brandSchema),
+    body: Joi.object().keys({
+        brandName: Joi.string().required(),
+        brandImage: Joi.string(),
+        description: Joi.string(),
+        Id: Joi.string()
+    }),
 };
 
 export const getBrandById = {

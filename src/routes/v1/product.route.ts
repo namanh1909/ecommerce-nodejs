@@ -11,6 +11,10 @@ router
   .get(validate(productValidation.getProducts), productController.getProducts);
 
 router
+  .route('/all')
+  .get(productController.getAllProduct);
+
+router
   .route('/:productId')
   .get(validate(productValidation.getProduct), productController.getProduct)
   .patch(auth('manageProducts'), validate(productValidation.updateProduct), productController.updateProduct)
@@ -67,6 +71,23 @@ export default router;
  *                   $ref: '#/components/schemas/Product'
  *   get:
  *     summary: Get all products
+ *     tags: [Products]
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ */
+
+/**
+ * @swagger
+ * /products/all:
+ *   get:
+ *     summary: Get all products without filters
  *     tags: [Products]
  *     responses:
  *       "200":

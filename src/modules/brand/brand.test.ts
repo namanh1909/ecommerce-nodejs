@@ -31,7 +31,7 @@ describe('Brand routes', () => {
       };
     });
 
-    test('should return 201 and successfully create new brand if request data is ok', async () => {
+    test('should return 201 and successfully create new brand if request data is valid', async () => {
       const res = await request(app).post('/v1/brands').send(newBrand).expect(httpStatus.CREATED);
 
       expect(res.body).toEqual({
@@ -47,18 +47,16 @@ describe('Brand routes', () => {
     });
 
     test('should return 400 error if brandName is missing', async () => {
-        newBrand.brandName = '';
-
+   
       await request(app).post('/v1/brands').send(newBrand).expect(httpStatus.BAD_REQUEST);
     });
 
     test('should return 400 error if brandImage is missing', async () => {
-        newBrand.brandName = '';
 
       await request(app).post('/v1/brands').send(newBrand).expect(httpStatus.BAD_REQUEST);
     });
+
     test('should return 400 error if description is missing', async () => {
-        newBrand.brandName = '';
 
       await request(app).post('/v1/brands').send(newBrand).expect(httpStatus.BAD_REQUEST);
     });
@@ -76,7 +74,7 @@ describe('Brand routes', () => {
   });
 
   describe('GET /v1/brands/:brandId', () => {
-    test('should return 200 and the brand object if data is ok', async () => {
+    test('should return 200 and the brand object if data is valid', async () => {
       await insertBrands([brandOne]);
 
       const res = await request(app).get(`/v1/brands/${brandOne._id}`).send().expect(httpStatus.OK);

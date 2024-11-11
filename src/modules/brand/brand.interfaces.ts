@@ -1,6 +1,6 @@
 export interface Brand {
-  Id?: string | null;
+  // Id?: string | null;
   brandName: string;
-  brandImage: string;
-  description: string;
+  brandImage?: string;
+  description?: string;
 }

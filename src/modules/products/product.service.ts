@@ -64,3 +64,13 @@ export const queryProducts = async (filter: any, options: any): Promise<Array<Pr
   const products = await ProductModel.find(filter, null, options);
   return products;
 };
+
+/**
+ * Get all products
+ * @returns {Promise<Array<Product>>}
+ */
+export const getAllProducts = async (): Promise<Array<Product>> => {
+  const products = await ProductModel.find();
+  console.log('products', products)
+  return products ;
+};

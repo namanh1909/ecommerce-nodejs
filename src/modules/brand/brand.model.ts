@@ -6,14 +6,15 @@ const brandSchema = new mongoose.Schema<Brand>(
     brandName: {
       type: String,
       required: true,
+      unique: true, // Thêm thuộc tính unique
     },
     brandImage: {
-      type: String,
-      required: true,
+      type: String, // Changed from Buffer to String to handle base64
+      required: false,
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   {

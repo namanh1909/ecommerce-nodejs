@@ -150,7 +150,7 @@ export const confirmEmailCode = async (email: string, code: string): Promise<voi
     console.log(`Confirming email code for email: ${email}, code: ${code}`);
     const storedCode = await redisClient.get(email);
     console.log(`storedCode`, storedCode);
-    logger.error(`email: ${email}`, storedCode)
+    logger.error(`email: ${email}`, storedCode);
     if (!storedCode) {
       const errorResponse: CommonResponseType<null> = {
         code: httpStatus.UNAUTHORIZED,

@@ -7,7 +7,8 @@ const router: Router = express.Router();
 
 router
   .route('/')
-  .post(auth(), validate(brandController.createBrand), brandController.createBrand);
+  .post(auth(), validate(brandController.createBrand), brandController.createBrand)
+  .get(brandController.getAllBrands);
 
 router
   .route('/:id')
@@ -61,6 +62,23 @@ export default router;
  *           application/json:
  *             schema:
  *                $ref: '#/components/schemas/Brand'
+ *       "400":
+ *         $ref: '#/components/responses/BadRequest'
+ *   get:
+ *     summary: Get all brands
+ *     description: Retrieve a list of all brands.
+ *     tags: [Brands]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Brand'
  *       "400":
  *         $ref: '#/components/responses/BadRequest'
  * /brands/{id}:
