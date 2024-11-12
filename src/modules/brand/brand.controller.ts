@@ -6,8 +6,8 @@ import { CommonResponseType } from '../../config/response';
 
 export const createBrand = catchAsync(async (req: Request, res: Response) => {
   try {
-    console.log('req.body', req.body)
-    const brand = await brandService.createBrand(req.body);
+    console.log('req.body', req.body);
+    const brand = await brandService.createOrUpdateBrand(req.body, res);
     const response: CommonResponseType<typeof brand> = {
       code: httpStatus.CREATED,
       data: brand,

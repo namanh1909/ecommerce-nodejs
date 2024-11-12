@@ -12,6 +12,7 @@ import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
 import { ApiError, errorConverter, errorHandler } from './modules/errors';
 import routes from './routes/v1';
+import path from 'path';
 
 const app: Express = express();
 
@@ -39,6 +40,13 @@ app.use(ExpressMongoSanitize());
 
 // gzip compression
 app.use(compression());
+
+app.use('/uploads', express.static('uploads'));
+
+const __dirname = path.resolve();
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // jwt authentication
 app.use(passport.initialize());

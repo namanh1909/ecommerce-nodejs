@@ -2,14 +2,15 @@ import express, { Router } from 'express';
 import { validate } from '../../modules/validate';
 import { brandController } from '../../modules/brand';
 import { auth } from '../../modules/auth';
+import { upload } from '../../modules/multer';
 
 const router: Router = express.Router();
 
+
 router
   .route('/')
-  .post(auth(), validate(brandController.createBrand), brandController.createBrand)
+  .post(auth(), upload.single('brandImage'), validate(brandController.createBrand), brandController.createBrand)
   .get(brandController.getAllBrands);
-
 router
   .route('/:id')
   .get(auth(), validate(brandController.getBrandById), brandController.getBrandById)
