@@ -7,7 +7,7 @@ import { CommonResponseType } from '../../config/response';
 export const createBrand = catchAsync(async (req: Request, res: Response) => {
   try {
     console.log('req.body', req.body);
-    const brand = await brandService.createOrUpdateBrand(req.body, res);
+    const brand = await brandService.createBrand(req, res);
     const response: CommonResponseType<typeof brand> = {
       code: httpStatus.CREATED,
       data: brand,
@@ -52,7 +52,7 @@ export const getBrandById = catchAsync(async (req: Request, res: Response) => {
 export const updateBrandById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   if (typeof id === 'string') {
-    const brand = await brandService.updateBrandById(id, req.body);
+    const brand = await brandService.updateBrandById(id, req, res);
     const response: CommonResponseType<typeof brand> = {
       code: httpStatus.OK,
       data: brand,
@@ -93,7 +93,7 @@ export const deleteBrandById = catchAsync(async (req: Request, res: Response) =>
   }
 });
 export const getAllBrands = catchAsync(async (req: Request, res: Response) => {
-  console.log(req)
+  console.log('req', req.body)
   const brands = await brandService.getAllBrands();
   const response: CommonResponseType<typeof brands> = {
     code: httpStatus.CREATED,

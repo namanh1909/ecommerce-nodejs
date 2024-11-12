@@ -6,7 +6,6 @@ import { upload } from '../../modules/multer';
 
 const router: Router = express.Router();
 
-
 router
   .route('/')
   .post(auth(), upload.single('brandImage'), validate(brandController.createBrand), brandController.createBrand)
@@ -14,7 +13,7 @@ router
 router
   .route('/:id')
   .get(auth(), validate(brandController.getBrandById), brandController.getBrandById)
-  .post(auth(), validate(brandController.updateBrandById), brandController.updateBrandById)
+  .post(auth(), upload.single('brandImage'), validate(brandController.updateBrandById), brandController.updateBrandById)
   .delete(auth(), validate(brandController.deleteBrandById), brandController.deleteBrandById);
 
 export default router;
@@ -31,30 +30,29 @@ export default router;
  * /brands:
  *   post:
  *     summary: Create a brand
- *     description: Create a new brand.
+ *     description: Create a new brand with a name, image, and description.
  *     tags: [Brands]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
  *               - brandName
  *               - brandImage
- *               - description
  *             properties:
  *               brandName:
  *                 type: string
  *               brandImage:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
  *             example:
  *               brandName: Example Brand
- *               brandImage: http://example.com/image.png
  *               description: This is an example brand.
  *     responses:
  *       "201":
@@ -69,8 +67,6 @@ export default router;
  *     summary: Get all brands
  *     description: Retrieve a list of all brands.
  *     tags: [Brands]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       "200":
  *         description: OK
@@ -109,7 +105,7 @@ export default router;
  *         $ref: '#/components/responses/NotFound'
  *   patch:
  *     summary: Update a brand
- *     description: Update an existing brand.
+ *     description: Update an existing brand's details.
  *     tags: [Brands]
  *     security:
  *       - bearerAuth: []
@@ -123,7 +119,7 @@ export default router;
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -131,11 +127,11 @@ export default router;
  *                 type: string
  *               brandImage:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
  *             example:
  *               brandName: Updated Brand
- *               brandImage: http://example.com/updated_image.png
  *               description: This is an updated brand description.
  *     responses:
  *       "200":

@@ -7,9 +7,7 @@ import { CommonResponseType } from '../../config/response';
 import { Request, Response } from 'express';
 import config from '../../config/config';
 import path from 'path';
-
-
-
+import fs from 'fs'
 
 /**
  * Create a brand
@@ -17,41 +15,25 @@ import path from 'path';
  * @returns {Promise<Brand>}
  */
 
-export const createOrUpdateBrand = async (req: Request, res: Response): Promise<Response> => {
+export const createBrand = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { id, brandName, description } = req.body;
+    const { brandName, description } = req.body;
     const brandImage = req.file ? path.posix.join(req.file.path.replace(/\\/g, '/')) : null;
 
-    let brand;
-    if (id) {
-      brand = await BrandModel.findByIdAndUpdate(
-        id,
-        { brandName, brandImage, description },
-        { new: true, runValidators: true }
-      );
-      if (!brand) {
-        return res.status(httpStatus.NOT_FOUND).json({
-          code: httpStatus.NOT_FOUND,
-          data: null,
-          message: 'Brand not found',
-          success: false,
-        });
-      }
-    } else {
-      brand = new BrandModel({
-        brandName,
-        brandImage,
-        description,
-      });
-      await brand.save();
-    }
+    const newBrand = new BrandModel({
+      brandName,
+      brandImage,
+      description,
+    });
+
+    await newBrand.save();
 
     const imageUrl = brandImage ? `${req.protocol}://${req.get('host')}/${brandImage}` : null;
 
     const response = {
-      code: id ? httpStatus.OK : httpStatus.CREATED,
-      data: { ...brand.toObject(), imageUrl },
-      message: id ? 'Brand updated successfully' : 'Brand created successfully',
+      code: httpStatus.CREATED,
+      data: { ...newBrand.toObject(), imageUrl },
+      message: 'Brand created successfully',
       success: true,
     };
     return res.status(response.code).json(response);
@@ -89,20 +71,60 @@ export const getBrandById = async (id: string): Promise<Brand> => {
  * @param {Partial<Brand>} updateBody
  * @returns {Promise<Brand>}
  */
-export const updateBrandById = async (id: string, updateBody: Partial<Brand>): Promise<Brand> => {
-  const brand = await BrandModel.findByIdAndUpdate(id, updateBody, { new: true, runValidators: true });
-  if (!brand) {
-    const errorResponse: CommonResponseType<null> = {
-      code: httpStatus.NOT_FOUND,
-      data: null,
-      message: 'Brand not found',
-      success: false,
-    };
-    throw new ApiError(errorResponse.code, errorResponse.message);
-  }
-  return brand;
-};
 
+export const updateBrandById = async (id: string, req: Request, res: Response) => {
+  try {
+    const brand = await BrandModel.findById(id);
+
+    if (!brand) {
+      const errorResponse: CommonResponseType<null> = {
+        code: httpStatus.NOT_FOUND,
+        data: null,
+        message: 'Brand not found',
+        success: false,
+      };
+      return res.status(errorResponse.code).json(errorResponse);
+    }
+
+    if (req.file) {
+      // If a new image is uploaded, delete the old image if it exists
+      if (brand.brandImage) {
+        const oldImagePath = path.resolve(brand.brandImage);
+        fs.unlink(oldImagePath, (err) => {
+          if (err) {
+            console.error('Failed to delete old image:', err);
+          } else {
+            console.log('Old image deleted successfully');
+          }
+        });
+      }
+
+      // Update brandImage with the new image path
+      brand.brandImage = path.posix.join(req.file.path.replace(/\\/g, '/'));
+    }
+
+    // Apply updates to the brand object
+    Object.assign(brand, { ...req.body, brandImage: brand.brandImage});
+
+    // Save updated brand
+    await brand.save();
+
+    const response = {
+      code: httpStatus.OK,
+      data: brand.toObject(),  // Ensure data is serializable
+      message: 'Brand updated successfully',
+      success: true,
+    };
+    return res.status(response.code).json(response);
+  } catch (error) {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      data: null,
+      message: (error as Error).message,
+      success: false,
+    });
+  }
+};
 /**
  * Delete brand by id
  * @param {string} id
@@ -135,7 +157,8 @@ export const getAllBrands = async (): Promise<Array<Brand>> => {
   const updatedBrands = brands.map(brand => {
     if (brand.brandImage) {
       // Đảm bảo đường dẫn ảnh đầy đủ
-      brand.brandImage = `${serverDomain}/${brand.brandImage}`;
+      brand.imageURL = `${serverDomain}/${brand.brandImage}`;
+      brand.brandImage = brand.brandImage
     }
     return brand;
   });

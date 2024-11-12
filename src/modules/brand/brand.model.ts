@@ -16,6 +16,10 @@ const brandSchema = new mongoose.Schema<Brand>(
       type: String,
       required: false,
     },
+    imageURL: {
+      type: String,
+      required: false,
+    }
   },
   {
     timestamps: true,
