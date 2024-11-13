@@ -7,7 +7,7 @@ import * as productService from './product.service';
 import { CommonResponseType } from '../../config/response';
 
 export const createProduct = catchAsync(async (req: Request, res: Response) => {
-  const product = await productService.createProduct(req.body);
+  const product = await productService.createProduct(req, res);
   const response: CommonResponseType<typeof product> = {
     code: httpStatus.CREATED,
     data: product,

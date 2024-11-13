@@ -8,9 +8,62 @@ import httpStatus from 'http-status';
  * @param {Product} productBody
  * @returns {Promise<Product>}
  */
-export const createProduct = async (productBody: Product): Promise<Product> => {
-  const product = await ProductModel.create(productBody);
-  return product;
+import { Request, Response } from 'express';
+import path from 'path';
+
+export const createProduct = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { productName, descriptionProduct, price, brandId, size, type, quantity, status } = req.body as {
+      productName: string;
+      descriptionProduct: string;
+      price: string;
+      brandId: string;
+      size: string;
+      type: string;
+      quantity: string;
+      status: string;
+    };
+    
+    // Handle multiple images for productImageDetail
+    const productImageDetail = (req.files as Express.Multer.File[])?.map(file => path.posix.join(file.path.replace(/\\/g, '/'))) || [];
+    
+    // Handle single image for thumbnail
+    const thumbnail = req.file ? path.posix.join(req.file.path.replace(/\\/g, '/')) : null;
+
+    const newProduct = new ProductModel({
+      productName,
+      productImageDetail,
+      descriptionProduct,
+      price,
+      brandId,
+      thumbnail,
+      size,
+      type,
+      quantity,
+      status,
+    });
+
+    await newProduct.save();
+
+    // Generate URLs for images
+    const productImageUrls = productImageDetail.map(image => `${req.protocol}://${req.get('host')}/${image}`);
+    const thumbnailUrl = thumbnail ? `${req.protocol}://${req.get('host')}/${thumbnail}` : null;
+
+    const response = {
+      code: httpStatus.CREATED,
+      data: { ...newProduct.toObject(), productImageUrls, thumbnailUrl },
+      message: 'Product created successfully',
+      success: true,
+    };
+    return res.status(response.code).json(response);
+  } catch (error) {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      data: null,
+      message: (error as Error).message,
+      success: false,
+    });
+  }
 };
 
 /**

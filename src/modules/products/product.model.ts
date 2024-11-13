@@ -23,10 +23,26 @@ const productSchema = new mongoose.Schema<Product>(
       type: String,
       required: true,
     },
-    productImage: {
+    thumbnail: {
       type: String,
       required: true,
-    }
+    },
+    size: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

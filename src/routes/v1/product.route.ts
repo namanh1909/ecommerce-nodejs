@@ -2,12 +2,13 @@ import express, { Router } from 'express';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
 import { productController, productValidation } from '../../modules/products';
+import { upload } from '../../modules/multer';
 
 const router: Router = express.Router();
 
 router
   .route('/')
-  .post(auth('manageProducts'), validate(productValidation.createProduct), productController.createProduct)
+  .post(auth('manageProducts'), upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'productImageDetail', maxCount: 5 }]), validate(productValidation.createProduct), productController.createProduct)
   .get(validate(productValidation.getProducts), productController.getProducts);
 
 router
@@ -41,24 +42,37 @@ export default router;
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
- *               - name
+ *               - productName
  *               - price
- *               - description
+ *               - descriptionProduct
+ *               - brandId
+ *               - thumbnail
  *             properties:
- *               name:
+ *               productName:
  *                 type: string
  *               price:
- *                 type: number
- *               description:
  *                 type: string
+ *               descriptionProduct:
+ *                 type: string
+ *               brandId:
+ *                 type: string
+ *               thumbnail:
+ *                 type: string
+ *                 format: binary
+ *               productImageDetail:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *             example:
- *               name: Sample Product
- *               price: 19.99
- *               description: This is a sample product
+ *               productName: Sample Product
+ *               price: "19.99"
+ *               descriptionProduct: This is a sample product
+ *               brandId: 12345
  *     responses:
  *       "201":
  *         description: Created
@@ -140,16 +154,16 @@ export default router;
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               productName:
  *                 type: string
  *               price:
- *                 type: number
- *               description:
+ *                 type: string
+ *               descriptionProduct:
  *                 type: string
  *             example:
- *               name: Updated Product
- *               price: 29.99
- *               description: This is an updated product
+ *               productName: Updated Product
+ *               price: "29.99"
+ *               descriptionProduct: This is an updated product
  *     responses:
  *       "200":
  *         description: OK
