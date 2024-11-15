@@ -1,13 +1,16 @@
 import Joi from 'joi';
-
 export const createProduct = {
   body: Joi.object({
     productName: Joi.string().required(),
-    productImageDetail: Joi.array().items(Joi.string().uri()).required(),
     descriptionProduct: Joi.string().required(),
     brandId: Joi.string().required(),
-    price: Joi.number().required(),
-    productImage: Joi.string().uri().required(),
+    price: Joi.string().required(),
+    thumbnail: Joi.string().uri().required(),
+    // productImageDetail: Joi.array().items(Joi.string().uri()),
+    size: Joi.string().required(),
+    type: Joi.string().required(),
+    quantity: Joi.string().required(),
+    status: Joi.string().required(),
   }),
 };
 

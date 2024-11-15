@@ -29,7 +29,7 @@ const defaultIRoute: IRoute[] = [
     route: brandRoute,
   },
   {
-    path: '/product',
+    path: '/products',
     route: productRoute
   }
 ];
