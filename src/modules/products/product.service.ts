@@ -2,16 +2,16 @@ import ProductModel from './product.model';
 import { Product } from './product.interfaces';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
-
+import fs from 'fs';
 /**
  * Create a product
  * @param {Product} productBody
  * @returns {Promise<Product>}
  */
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import path from 'path';
 
-export const createProduct = async (req: Request, res: Response): Promise<Response> => {
+export const createProduct = async (req: any, res: Response): Promise<Response> => {
   try {
     const { productName, descriptionProduct, price, brandId, size, type, quantity, status } = req.body as {
       productName: string;
@@ -23,12 +23,18 @@ export const createProduct = async (req: Request, res: Response): Promise<Respon
       quantity: string;
       status: string;
     };
-    
+
     // Handle multiple images for productImageDetail
-    const productImageDetail = (req.files as Express.Multer.File[])?.map(file => path.posix.join(file.path.replace(/\\/g, '/'))) || [];
-    
+    const productImageDetail = req?.files?.productImageDetail
+      ? (req?.files?.productImageDetail as Express.Multer.File[])?.map((file) =>
+          path.posix.join(file?.path?.replace(/\\/g, '/'))
+        )
+      : [];
+
     // Handle single image for thumbnail
-    const thumbnail = req.file ? path.posix.join(req.file.path.replace(/\\/g, '/')) : null;
+    const thumbnail = req.files.thumbnail
+      ? (req?.files?.thumbnail as Express.Multer.File[])?.map((file) => path.posix.join(file?.path?.replace(/\\/g, '/')))[0]
+      : [];
 
     const newProduct = new ProductModel({
       productName,
@@ -46,7 +52,7 @@ export const createProduct = async (req: Request, res: Response): Promise<Respon
     await newProduct.save();
 
     // Generate URLs for images
-    const productImageUrls = productImageDetail.map(image => `${req.protocol}://${req.get('host')}/${image}`);
+    const productImageUrls = productImageDetail?.map((image) => `${req.protocol}://${req.get('host')}/${image}`);
     const thumbnailUrl = thumbnail ? `${req.protocol}://${req.get('host')}/${thumbnail}` : null;
 
     const response = {
@@ -57,6 +63,21 @@ export const createProduct = async (req: Request, res: Response): Promise<Respon
     };
     return res.status(response.code).json(response);
   } catch (error) {
+    // Delete uploaded files if an error occurs
+    if (req?.files?.productImageDetail) {
+      (req.files.productImageDetail as Express.Multer.File[]).forEach((file) => {
+        fs.unlink(file.path, (err) => {
+          if (err) console.error(`Failed to delete file: ${file.path}`, err);
+        });
+      });
+    }
+    if (req?.files?.thumbnail) {
+      (req.files.thumbnail as Express.Multer.File[]).forEach((file) => {
+        fs.unlink(file.path, (err) => {
+          if (err) console.error(`Failed to delete file: ${file.path}`, err);
+        });
+      });
+    }
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       code: httpStatus.INTERNAL_SERVER_ERROR,
       data: null,
@@ -106,7 +127,6 @@ export const deleteProductById = async (id: string): Promise<Product> => {
   return product;
 };
 
-
 /**
  * Query products with filters and pagination
  * @param {Object} filter - Mongo filter object
@@ -124,6 +144,6 @@ export const queryProducts = async (filter: any, options: any): Promise<Array<Pr
  */
 export const getAllProducts = async (): Promise<Array<Product>> => {
   const products = await ProductModel.find();
-  console.log('products', products)
-  return products ;
+  console.log('products', products);
+  return products;
 };

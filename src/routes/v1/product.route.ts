@@ -70,8 +70,14 @@ export default router;
  *                 description: Price of the product
  *               thumbnail:
  *                 type: string
- *                 format: uri
- *                 description: URI of the thumbnail image of the product
+ *                 format: binary
+ *                 description: Thumbnail image of the product
+ *               productImageDetail:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Detailed images of the product
  *               size:
  *                 type: string
  *                 description: Size of the product
@@ -89,7 +95,8 @@ export default router;
  *               descriptionProduct: This is a sample product
  *               brandId: 12345
  *               price: "19.99"
- *               thumbnail: http://example.com/sample-thumbnail.jpg
+ *               thumbnail: sample-thumbnail.jpg
+ *               productImageDetail: [sample-image1.jpg, sample-image2.jpg]
  *               size: Medium
  *               type: Clothing
  *               quantity: "100"
